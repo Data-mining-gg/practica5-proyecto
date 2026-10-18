@@ -108,14 +108,15 @@ def escribir(df):
     df.write_csv(str(RUTA_DATA_PROCESSED / "preprocessed_consumption.csv"))
 
 # Pipeline completo de extracción, preprocesamiento y escritura de dataset crudo:
-try:
-    data_crudo = pl.read_csv(
-        RUTA_DATA_RAW / "household_power_consumption.txt",
-        separator=";",
-        null_values="?"
-    )
-    escribir(
-        pipeline_preprocesamiento(data_crudo)
-    )
-except FileNotFoundError:
-    print("Error: Dataset no disponible.")
+def preprocesamiento_de_crudo():
+    try:
+        data_crudo = pl.read_csv(
+            RUTA_DATA_RAW / "household_power_consumption.txt",
+            separator=";",
+            null_values="?"
+        )
+        escribir(
+            pipeline_preprocesamiento(data_crudo)
+        )
+    except FileNotFoundError:
+        print("Error: Dataset no disponible.")
