@@ -2,6 +2,8 @@ import polars as pl
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from config.rutas import RUTA_DATA_PROCESSED
+
 
 # Filtrado de columnas numéricas
 def obtener_numericas(df:pl.DataFrame) -> pl.DataFrame:
@@ -14,7 +16,7 @@ def obtener_numericas(df:pl.DataFrame) -> pl.DataFrame:
     ])
 
 # Matriz de correlación
-def calcular_matriz_pearson(df: pl.DataFrame) -> pd.DataFrame:
+def matriz_correlaciones(df: pl.DataFrame) -> pd.DataFrame:
     return df.to_pandas().corr(method="pearson")
 
 # Graficación del mapa de calor
@@ -36,3 +38,12 @@ def graficar_heatmap(matriz_corr: pd.DataFrame, titulo: str = "Matriz de Correla
     plt.title(titulo, fontsize=13, pad=15)
     plt.tight_layout()
     plt.show()
+
+# Pipeline completo de generación de mapa de calor de dataset normalizado
+def graficar_cualitativas_de_normalizado():
+    lectura_normalizada = pl.read_csv(RUTA_DATA_PROCESSED / "normalized_consumption.csv")
+    graficar_heatmap(
+        matriz_correlaciones(
+            obtener_numericas(lectura_normalizada)
+        )
+    )
