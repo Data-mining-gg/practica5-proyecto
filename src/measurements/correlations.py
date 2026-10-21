@@ -40,7 +40,7 @@ def graficar_heatmap(matriz_corr: pd.DataFrame, titulo: str = "Matriz de Correla
     plt.show()
 
 # Pipeline completo de generación de mapa de calor de dataset normalizado
-def graficar_cualitativas_de_normalizado():
+def graficar_cuantitativas_de_normalizado():
     lectura_normalizada = pl.read_csv(RUTA_DATA_PROCESSED / "normalized_consumption.csv")
     graficar_heatmap(
         matriz_correlaciones(
