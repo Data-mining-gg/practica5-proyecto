@@ -99,13 +99,14 @@ proyecto/
 |   |-- cleaning/                # preprocesamiento, normalización y dataset final
 |   |-- measurements/            # correlación de Pearson y mapa de calor
 |   |-- reduction/               # PCA
+|   |-- visualization/           # carga, métricas y gráficas del dashboard
 |-- visualization/
 |   |-- app.py                   # código principal del dashboard
 |-- README.md
 |-- requirements.txt
 ```
 
-Los notebooks solo llaman a las funciones de `src/`, que es donde está la lógica.
+Los notebooks y el dashboard solo llaman a las funciones de `src/`, que es donde está la lógica.
 
 # Instrucciones de instalación
 
@@ -135,3 +136,15 @@ streamlit run visualization/app.py
 ```
 
 El dashboard se abre en el navegador, en `http://localhost:8501`.
+
+## Contenido del dashboard
+
+El dashboard lee los datasets de `data/data-processed/`: el limpio, para mostrar el consumo en sus unidades reales, y el preparado, para la sección de PCA.
+
+- **Filtros (barra lateral):** rango de fechas, nivel de agregación (hora, día, semana o mes) y variable a analizar en las distribuciones.
+- **KPIs:** potencia promedio, pico de potencia, energía total, energía diaria promedio y hora de mayor consumo.
+- **Tendencia:** consumo a lo largo del tiempo, energía por zona de la casa y reparto de la energía.
+- **Patrones:** consumo promedio por día de la semana y hora, y por hora del día.
+- **Distribuciones:** histograma y diagrama de caja por mes de la variable elegida.
+- **Relaciones y PCA:** matriz de correlación, varianza explicada, proyección en 2D y loadings.
+- **Tablas:** resumen por periodo (descargable en CSV), estadísticas descriptivas y registros minuto a minuto.
