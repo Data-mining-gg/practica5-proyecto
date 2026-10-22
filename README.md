@@ -1,5 +1,7 @@
 # Descripción del proyecto
 
+En este proyecto preparamos un dataset de consumo eléctrico doméstico para entrenar modelos de aprendizaje automático en prácticas posteriores. Para ello limpiamos los datos, normalizamos las variables numéricas, reducimos la dimensionalidad con el coeficiente de correlación de Pearson y con PCA, y mostramos los resultados en un dashboard interactivo hecho en Streamlit.
+
 ## Preprocesamiento del dataset
 
 ### Casteo de tipos
@@ -68,10 +70,68 @@ El dataset final se guarda en `data/data-processed/prepared_consumption.csv` y c
 
 # Descripción del dataset y su fuente
 
+Usamos el dataset [Individual Household Electric Power Consumption](https://archive.ics.uci.edu/dataset/235/individual+household+electric+power+consumption) del UCI Machine Learning Repository (Hebrail y Berard, 2006). Contiene mediciones del consumo eléctrico de una casa en Sceaux, Francia, tomadas cada minuto entre diciembre de 2006 y noviembre de 2010.
+
+- **Tamaño:** 2,075,259 registros y 9 columnas.
+- **Valores faltantes:** 25,979 registros (cerca del 1.25%) vienen marcados con `?`.
+- **Columnas:**
+  - `Date` y `Time`: fecha y hora de la medición.
+  - `Global_active_power`: potencia activa total de la casa (kW).
+  - `Global_reactive_power`: potencia reactiva total de la casa (kW).
+  - `Voltage`: voltaje (V).
+  - `Global_intensity`: intensidad de corriente (A).
+  - `Sub_metering_1`: energía de la cocina (Wh).
+  - `Sub_metering_2`: energía de la lavandería (Wh).
+  - `Sub_metering_3`: energía del calentador de agua y el aire acondicionado (Wh).
+
 # Descripción de organización de carpetas
+
+```
+proyecto/
+|-- config/
+|   |-- rutas.py                 # rutas a las carpetas del proyecto
+|-- data/
+|   |-- data-raw/                # dataset original, sin modificar
+|   |-- data-processed/          # datasets generados por el proyecto
+|-- notebooks/                   # ejecución y revisión de cada paso
+|-- src/
+|   |-- inspection/              # inspección inicial del dataset
+|   |-- cleaning/                # preprocesamiento, normalización y dataset final
+|   |-- measurements/            # correlación de Pearson y mapa de calor
+|   |-- reduction/               # PCA
+|-- visualization/
+|   |-- app.py                   # código principal del dashboard
+|-- README.md
+|-- requirements.txt
+```
+
+Los notebooks solo llaman a las funciones de `src/`, que es donde está la lógica.
 
 # Instrucciones de instalación
 
+Necesitas Python 3.13 o superior. Desde la carpeta `proyecto/`:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate        # En Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
 ## Instalación del dataset
 
+El dataset original pesa unos 127 MB, por lo que no lo subimos al repositorio. Para obtenerlo:
+
+1. Descarga el ZIP desde la [página del dataset en UCI](https://archive.ics.uci.edu/dataset/235/individual+household+electric+power+consumption).
+2. Descomprímelo y coloca `household_power_consumption.txt` en `data/data-raw/`.
+3. Ejecuta `notebooks/Genera_normalizado.ipynb` para generar los datasets preprocesado y normalizado.
+4. Ejecuta `notebooks/PCA.ipynb` para generar el dataset final, `data/data-processed/prepared_consumption.csv`.
+
 # Ejecución del dashboard
+
+Con el entorno activado y el dataset final ya generado, desde la carpeta `proyecto/`:
+
+```bash
+streamlit run visualization/app.py
+```
+
+El dashboard se abre en el navegador, en `http://localhost:8501`.
