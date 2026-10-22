@@ -1,0 +1,11 @@
+# Datos (el dataset se descarga de UCI, ver README)
+data/data-raw/*
+data/data-processed/*
+!data/data-raw/.gitkeep
+!data/data-processed/.gitkeep
+
+# Entorno y caché de Python
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
