@@ -1,12 +1,10 @@
 # Descripción del proyecto
 
-
-
 ## Preprocesamiento del dataset
 
 ### Casteo de tipos
 
-Los principales cambios realizados con respecto a las deficiencias del formato original son la normalización del encabezado a nombres en minúsculas, la conversión al tipo nativo ```'null```' de valores faltantes marcados como '?', y la conversión de las columnas de fecha y hora por separado a una sola columna con datos del tipo ```datetime```.
+Los principales cambios realizados con respecto a las deficiencias del formato original son la normalización del encabezado a nombres en minúsculas, la conversión al tipo nativo `'null`' de valores faltantes marcados como '?', y la conversión de las columnas de fecha y hora por separado a una sola columna con datos del tipo `datetime`.
 
 ### Deduplicado de filas
 
@@ -26,26 +24,54 @@ Podemos observar que la normalización funciona dado que, para todas las variabl
 
 ## Mapa de calor
 
-Ya que todas las columnas almacenan valores de tipo numérico, con excepción de la columna ```datetime```, entonces simplemente se excluye a esta última de las mediciones.
+Ya que todas las columnas almacenan valores de tipo numérico, con excepción de la columna `datetime`, entonces simplemente se excluye a esta última de las mediciones.
 
-Dados los valores generados en el mapa, la principal redundancia a remover es la de la relación entre ```global_intensity``` y ```global_active_power```, ya que la intersección muestra un coeficiente de correlación de 1, por lo que ambas variables contienen información estrictamente semejante, pudiendo generar redundancia de cálculo en Machine Learning.
+Dados los valores generados en el mapa, la principal redundancia a remover es la de la relación entre `global_intensity` y `global_active_power`, ya que la intersección muestra un coeficiente de correlación de 0.9989 (el mapa lo redondea a 1.00), por lo que ambas variables contienen información prácticamente idéntica, pudiendo generar redundancia de cálculo en Machine Learning. Esto tiene sentido físico: la potencia activa es aproximadamente el producto del voltaje por la intensidad, y como el voltaje varía muy poco, la intensidad es casi proporcional a la potencia.
+
+Se descarta `global_intensity` y se conserva `global_active_power`, ya que esta última es la variable objetivo natural del dataset (consumo del hogar) y guarda relación directa con los sub-medidores.
 
 En cuanto al resto de variables, dado que todas tienen entre sí niveles de correlación por debajo del umbral estándar (por convención) de 0.85, entonces éstas reflejan por sí mismas una parte importante del consumo global sin redundancias.
 
+## Análisis de Componentes Principales (PCA)
+
+### Estandarización
+
+El PCA se aplica sobre el dataset normalizado con z-score y sin `global_intensity`, es decir, 6 variables cuantitativas. Se verificó que, en la porción de entrenamiento (primer 80%), todas tienen media aproximadamente 0 y desviación estándar 1. Por la misma razón que en la normalización, el PCA se ajusta solo con la porción de entrenamiento y después se proyecta todo el dataset, para no filtrar información del futuro.
+
+### Varianza explicada y número de componentes
+
+| Componente | Valor propio | Varianza explicada | Varianza acumulada |
+| ---------- | ------------ | ------------------ | ------------------ |
+| PC1        | 2.311        | 38.5%              | 38.5%              |
+| PC2        | 0.986        | 16.4%              | 54.9%              |
+| PC3        | 0.934        | 15.6%              | 70.5%              |
+| PC4        | 0.834        | 13.9%              | 84.4%              |
+| PC5        | 0.771        | 12.9%              | 97.3%              |
+| PC6        | 0.164        | 2.7%               | 100%               |
+
+Se retienen **4 componentes**, con el criterio de alcanzar al menos 80% de varianza acumulada (84.4%). El criterio de Kaiser (valor propio mayor a 1) retendría solo PC1, lo cual perdería más del 60% de la información; además PC2, PC3 y PC4 tienen valores propios cercanos a 1, por lo que en el scree plot no se observa un "codo" claro después de PC1. PC6 aporta apenas 2.7%, lo que indica que todavía queda algo de redundancia lineal entre las variables.
+
+### Interpretación de loadings
+
+- **PC1 (consumo general):** todas las variables de consumo pesan de forma positiva (`global_active_power` 0.61, `sub_metering_3` 0.43, `sub_metering_1` 0.36, `sub_metering_2` 0.32) y `voltage` de forma negativa (-0.38), ya que el voltaje cae cuando la demanda de la casa sube. Valores altos de PC1 representan momentos de alto consumo.
+- **PC2 (lavandería/reactiva vs. calentador/aire):** contrasta `global_reactive_power` (0.68) y `sub_metering_2` (0.51) contra `sub_metering_3` (-0.50). Los motores de la lavadora y secadora generan potencia reactiva, mientras que el calentador de agua y el aire acondicionado son cargas principalmente resistivas.
+- **PC3 (cocina vs. lavandería):** contrasta `sub_metering_1` (0.73) contra `sub_metering_2` (-0.58).
+- **PC4 (reactiva y calentador vs. cocina y lavandería):** `global_reactive_power` (0.63) y `sub_metering_3` (0.44) contra `sub_metering_1` (-0.46) y `sub_metering_2` (-0.44).
+
+### Proyección en 2D
+
+En la proyección PC1 vs. PC2 (muestra de 20,000 registros coloreada por hora del día) se observa una nube densa en valores bajos de PC1, que corresponde principalmente a la madrugada (consumo base), y una dispersión mucho mayor hacia valores altos de PC1 en horas de la mañana y la noche, que corresponden a los picos de consumo. Las líneas diagonales en el borde inferior se deben a que los sub-medidores registran valores enteros (Wh), lo que produce niveles discretos.
+
+## Dataset preparado
+
+El dataset final se guarda en `data/data-processed/prepared_consumption.csv` y contiene `datetime`, las 6 variables normalizadas (sin `global_intensity`) y los componentes `pc1` a `pc4`. El archivo original en `data/data-raw/` no se modifica.
 
 # Descripción del dataset y su fuente
 
-
-
 # Descripción de organización de carpetas
-
-
 
 # Instrucciones de instalación
 
-
 ## Instalación del dataset
-
-
 
 # Ejecución del dashboard
